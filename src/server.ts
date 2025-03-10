@@ -4,6 +4,7 @@ import cors from "cors";
 import helmet from "helmet";
 import morgan from "morgan";
 import { apiRouter } from "./routes/api";
+import { BrowserManager } from "./utils/browser/BrowserManager";
 
 // サーバーの設定
 const app = express();
@@ -22,7 +23,7 @@ app.use("/api", apiRouter);
 app.get("/", (req, res) => {
   res.json({
     status: "ok",
-    message: "Playwright Automation API is running",
+    message: "Playwright Automation API is running in agent mode",
     version: "1.0.0",
   });
 });
@@ -43,9 +44,43 @@ app.use(
   }
 );
 
+// ブラウザマネージャーのインスタンスを取得
+const browserManager = BrowserManager.getInstance();
+
 // サーバーの起動
-app.listen(PORT, () => {
+const server = app.listen(PORT, async () => {
   console.log(`🚀 Server running on http://localhost:${PORT}`);
+  
+  // サーバー起動時にブラウザを初期化
+  try {
+    await browserManager.initialize({ 
+      headless: process.env.HEADLESS === 'true',
+      viewportWidth: parseInt(process.env.VIEWPORT_WIDTH || '1280', 10),
+      viewportHeight: parseInt(process.env.VIEWPORT_HEIGHT || '800', 10)
+    });
+    console.log('Browser agent initialized successfully');
+  } catch (error) {
+    console.error('Failed to initialize browser agent:', error);
+  }
+});
+
+// プロセス終了時のクリーンアップ
+process.on('SIGINT', async () => {
+  console.log('Received SIGINT. Shutting down gracefully...');
+  await browserManager.shutdown();
+  server.close(() => {
+    console.log('Server closed. Exiting process.');
+    process.exit(0);
+  });
+});
+
+process.on('SIGTERM', async () => {
+  console.log('Received SIGTERM. Shutting down gracefully...');
+  await browserManager.shutdown();
+  server.close(() => {
+    console.log('Server closed. Exiting process.');
+    process.exit(0);
+  });
 });
 
 export default app;
