@@ -5,6 +5,8 @@ export interface BrowserOptions {
   headless?: boolean;
   timeout?: number;
   waitUntil?: "load" | "domcontentloaded" | "networkidle";
+  viewportWidth?: number; // 追加: ビューポート幅
+  viewportHeight?: number; // 追加: ビューポート高さ
 }
 
 // Script execution result
@@ -23,6 +25,8 @@ export interface ScriptRequestBody {
   headless?: boolean;
   timeout?: number;
   waitUntil?: "load" | "domcontentloaded" | "networkidle";
+  viewportWidth?: number; // 追加: ビューポート幅
+  viewportHeight?: number; // 追加: ビューポート高さ
 }
 
 // Request body for fetch operations
@@ -32,6 +36,8 @@ export interface FetchRequestBody {
   headless?: boolean;
   markdown?: boolean;
   readability?: boolean;
+  viewportWidth?: number; // 追加: ビューポート幅
+  viewportHeight?: number; // 追加: ビューポート高さ
 }
 
 // API response structure

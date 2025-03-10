@@ -8,11 +8,15 @@ interface FetchOptions {
   headless?: boolean;
   waitForNetworkIdle?: boolean;
   timeout?: number;
+  viewportWidth?: number; // 追加: ビューポート幅
+  viewportHeight?: number; // 追加: ビューポート高さ
 }
 
 const DEFAULT_OPTIONS: FetchOptions = {
   headless: false,
   timeout: 30000,
+  viewportWidth: 800, // デフォルト値を設定
+  viewportHeight: 600, // デフォルト値を設定
 };
 
 /**
@@ -43,6 +47,12 @@ export async function fetchPageContent(
 
     // Create new page
     const page = await browser.newPage();
+
+    // Set viewport size
+    await page.setViewportSize({
+      width: settings.viewportWidth || DEFAULT_OPTIONS.viewportWidth!,
+      height: settings.viewportHeight || DEFAULT_OPTIONS.viewportHeight!,
+    });
 
     // Navigate to URL with timeout
     await page.goto(url, {
@@ -104,6 +114,12 @@ export async function takeScreenshot(
     });
 
     const page = await browser.newPage();
+
+    // Set viewport size
+    await page.setViewportSize({
+      width: settings.viewportWidth || DEFAULT_OPTIONS.viewportWidth!,
+      height: settings.viewportHeight || DEFAULT_OPTIONS.viewportHeight!,
+    });
 
     await page.goto(url, {
       timeout: settings.timeout,

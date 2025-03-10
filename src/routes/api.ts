@@ -18,18 +18,26 @@ export const apiRouter = express.Router();
  *
  * @body    {
  *  url: string,        // target URL to screenshot (required)
- *  output: string      // output file path (optional)
+ *  output: string,     // output file path (optional)
+ *  viewportWidth: number, // viewport width in pixels (optional, default: 800)
+ *  viewportHeight: number // viewport height in pixels (optional, default: 600)
  * }
  */
 apiRouter.post("/screenshot", validateFetchRequest, async (req, res, next) => {
   try {
     const { url, output } = req.body;
     const headless = req.body.headless !== false; // Default to true if not specified
+    const viewportWidth = req.body.viewportWidth;
+    const viewportHeight = req.body.viewportHeight;
 
     console.log(`API: Taking screenshot of ${url}...`);
 
-    // Take screenshot using Playwright
-    const screenshotBuffer = await takeScreenshot(url, { headless });
+    // Take screenshot using Playwright with viewport options
+    const screenshotBuffer = await takeScreenshot(url, {
+      headless,
+      viewportWidth,
+      viewportHeight,
+    });
 
     // Handle file output if specified
     if (output) {
@@ -75,7 +83,9 @@ apiRouter.get("/status", (req, res) => {
  *
  * @body    {
  *  url: string,        // target URL to fetch (required)
- *  output: string      // output file path (optional)
+ *  output: string,     // output file path (optional)
+ *  viewportWidth: number, // viewport width in pixels (optional, default: 800)
+ *  viewportHeight: number // viewport height in pixels (optional, default: 600)
  * }
  */
 apiRouter.post("/html", validateFetchRequest, async (req, res, next) => {
@@ -88,15 +98,19 @@ apiRouter.post("/html", validateFetchRequest, async (req, res, next) => {
       output: string;
     } = req.body;
     const headless = req.body.headless !== false; // Default to true if not specified
+    const viewportWidth = req.body.viewportWidth;
+    const viewportHeight = req.body.viewportHeight;
 
     console.log(`API: Fetching ${url}...`);
 
     const markdown = false;
     const readability = false;
 
-    // Fetch content using Playwright
+    // Fetch content using Playwright with viewport options
     const content = await fetchPageContent(url, markdown, readability, {
       headless,
+      viewportWidth,
+      viewportHeight,
     });
 
     // Handle file output if specified
@@ -131,7 +145,9 @@ apiRouter.post("/html", validateFetchRequest, async (req, res, next) => {
  *
  * @body    {
  *  url: string,        // target URL to fetch (required)
- *  output: string      // output file path (optional)
+ *  output: string,     // output file path (optional)
+ *  viewportWidth: number, // viewport width in pixels (optional, default: 800)
+ *  viewportHeight: number // viewport height in pixels (optional, default: 600)
  * }
  */
 apiRouter.post("/read", validateFetchRequest, async (req, res, next) => {
@@ -144,15 +160,19 @@ apiRouter.post("/read", validateFetchRequest, async (req, res, next) => {
       output: string;
     } = req.body;
     const headless = req.body.headless !== false; // Default to true if not specified
+    const viewportWidth = req.body.viewportWidth;
+    const viewportHeight = req.body.viewportHeight;
 
     console.log(`API: Fetching ${url}...`);
 
     const markdown = true;
     const readability = true;
 
-    // Fetch content using Playwright
+    // Fetch content using Playwright with viewport options
     const content = await fetchPageContent(url, markdown, readability, {
       headless,
+      viewportWidth,
+      viewportHeight,
     });
 
     // Handle file output if specified
@@ -190,7 +210,9 @@ apiRouter.post("/read", validateFetchRequest, async (req, res, next) => {
  *  script: string,     // JavaScript code to execute (required)
  *  output: string,     // output file path for result (optional)
  *  headless: boolean,  // run in headless mode (default: true)
- *  timeout: number     // timeout in milliseconds (default: 30000)
+ *  timeout: number,    // timeout in milliseconds (default: 30000)
+ *  viewportWidth: number, // viewport width in pixels (optional, default: 800)
+ *  viewportHeight: number // viewport height in pixels (optional, default: 600)
  * }
  */
 apiRouter.post("/script", validateScriptRequest, async (req, res, next) => {
@@ -209,6 +231,8 @@ apiRouter.post("/script", validateScriptRequest, async (req, res, next) => {
       headless: req.body.headless !== false, // Default to true if not specified
       timeout: req.body.timeout || 30000,
       waitUntil: req.body.waitUntil || "domcontentloaded",
+      viewportWidth: req.body.viewportWidth,
+      viewportHeight: req.body.viewportHeight,
     };
 
     console.log(`API: Executing script on ${url}...`);
@@ -285,7 +309,9 @@ apiRouter.post("/script", validateScriptRequest, async (req, res, next) => {
  *  script: string,     // JavaScript function code that uses Page object (required)
  *  output: string,     // output file path for result (optional)
  *  headless: boolean,  // run in headless mode (default: true)
- *  timeout: number     // timeout in milliseconds (default: 30000)
+ *  timeout: number,    // timeout in milliseconds (default: 30000)
+ *  viewportWidth: number, // viewport width in pixels (optional, default: 800)
+ *  viewportHeight: number // viewport height in pixels (optional, default: 600)
  * }
  */
 apiRouter.post(
@@ -307,6 +333,8 @@ apiRouter.post(
         headless: req.body.headless !== false, // Default to true if not specified
         timeout: req.body.timeout || 30000,
         waitUntil: req.body.waitUntil || "domcontentloaded",
+        viewportWidth: req.body.viewportWidth,
+        viewportHeight: req.body.viewportHeight,
       };
 
       console.log(`API: Executing advanced script on ${url}...`);

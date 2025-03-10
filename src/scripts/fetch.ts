@@ -10,6 +10,16 @@ program
   .requiredOption("-u, --url <url>", "target URL to fetch")
   .option("-m, --markdown", "convert to markdown", false)
   .option("-o, --output <file>", "output file path")
+  .option(
+    "-w, --width <number>",
+    "viewport width in pixels (default: 800)",
+    (val) => parseInt(val, 10)
+  )
+  .option(
+    "-h, --height <number>",
+    "viewport height in pixels (default: 600)",
+    (val) => parseInt(val, 10)
+  )
   .parse();
 
 const options = program.opts();
@@ -18,7 +28,15 @@ console.log(`Fetching ${options.url}...`);
 
 async function main() {
   try {
-    const content = await fetchPageContent(options.url, options.markdown);
+    const content = await fetchPageContent(
+      options.url,
+      options.markdown,
+      false, // readability
+      {
+        viewportWidth: options.width,
+        viewportHeight: options.height,
+      }
+    );
 
     if (options.output) {
       // Ensure the directory exists

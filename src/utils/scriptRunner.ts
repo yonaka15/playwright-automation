@@ -5,7 +5,9 @@ import { BrowserOptions, ScriptResult } from "../types";
 const DEFAULT_OPTIONS: BrowserOptions = {
   headless: true,
   timeout: 30000,
-  waitUntil: "domcontentloaded",
+  waitUntil: "load",
+  viewportWidth: 800, // デフォルト値を設定
+  viewportHeight: 600, // デフォルト値を設定
 };
 
 /**
@@ -35,6 +37,12 @@ export async function runScript(
 
     // Create new page
     page = await browser.newPage();
+
+    // Set viewport size
+    await page.setViewportSize({
+      width: settings.viewportWidth || DEFAULT_OPTIONS.viewportWidth!,
+      height: settings.viewportHeight || DEFAULT_OPTIONS.viewportHeight!,
+    });
 
     // Navigate to URL with timeout
     await page.goto(url, {
@@ -104,6 +112,12 @@ export async function runAdvancedScript(
 
     // Create new page
     page = await browser.newPage();
+
+    // Set viewport size
+    await page.setViewportSize({
+      width: settings.viewportWidth || DEFAULT_OPTIONS.viewportWidth!,
+      height: settings.viewportHeight || DEFAULT_OPTIONS.viewportHeight!,
+    });
 
     // Navigate to URL with timeout
     await page.goto(url, {

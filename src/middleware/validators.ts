@@ -41,6 +41,24 @@ export function validateFetchRequest(
     return;
   }
 
+  // Validate viewport width and height if provided
+  const { viewportWidth, viewportHeight } = req.body;
+  if (viewportWidth !== undefined && typeof viewportWidth !== "number") {
+    res.status(400).json({
+      status: "error",
+      message: "Viewport width must be a number",
+    });
+    return;
+  }
+
+  if (viewportHeight !== undefined && typeof viewportHeight !== "number") {
+    res.status(400).json({
+      status: "error",
+      message: "Viewport height must be a number",
+    });
+    return;
+  }
+
   // All validations passed
   next();
 }
@@ -99,6 +117,24 @@ export function validateScriptRequest(
     res.status(400).json({
       status: "error",
       message: "Output path must be a string",
+    });
+    return;
+  }
+
+  // Validate viewport width and height if provided
+  const { viewportWidth, viewportHeight } = req.body;
+  if (viewportWidth !== undefined && typeof viewportWidth !== "number") {
+    res.status(400).json({
+      status: "error",
+      message: "Viewport width must be a number",
+    });
+    return;
+  }
+
+  if (viewportHeight !== undefined && typeof viewportHeight !== "number") {
+    res.status(400).json({
+      status: "error",
+      message: "Viewport height must be a number",
     });
     return;
   }
