@@ -1,6 +1,8 @@
 // src/utils/fetcher.ts
 import { chromium, Page, ChromiumBrowser } from "playwright";
 import { NodeHtmlMarkdown } from "node-html-markdown";
+import { Readability } from "@mozilla/readability";
+import { JSDOM } from "jsdom";
 
 interface FetchOptions {
   headless?: boolean;
@@ -10,7 +12,6 @@ interface FetchOptions {
 
 const DEFAULT_OPTIONS: FetchOptions = {
   headless: false,
-  waitForNetworkIdle: true,
   timeout: 30000,
 };
 
@@ -19,12 +20,14 @@ const DEFAULT_OPTIONS: FetchOptions = {
  *
  * @param url URL to fetch
  * @param asMarkdown Convert HTML to Markdown
+ * @param asReadability use Mozilla Readability to extract content
  * @param options Additional fetch options
  * @returns Page content as HTML or Markdown
  */
 export async function fetchPageContent(
   url: string,
   asMarkdown = false,
+  asReadability = false,
   options: FetchOptions = {}
 ): Promise<string> {
   // Merge default options with provided options
@@ -44,11 +47,20 @@ export async function fetchPageContent(
     // Navigate to URL with timeout
     await page.goto(url, {
       timeout: settings.timeout,
-      waitUntil: settings.waitForNetworkIdle ? "networkidle" : "load",
+      waitUntil: "domcontentloaded",
     });
 
     // Get page content
-    const content = await page.content();
+    const content = await (async () => {
+      const content = await page.content();
+      if (asReadability) {
+        const dom = new JSDOM(content, { url });
+        const reader = new Readability(dom.window.document);
+        const article = reader.parse();
+        return article?.content || content;
+      }
+      return content;
+    })();
 
     // Convert to markdown if requested
     if (asMarkdown) {
@@ -95,7 +107,7 @@ export async function takeScreenshot(
 
     await page.goto(url, {
       timeout: settings.timeout,
-      waitUntil: settings.waitForNetworkIdle ? "networkidle" : "load",
+      waitUntil: "load",
     });
 
     // Take screenshot of full page
